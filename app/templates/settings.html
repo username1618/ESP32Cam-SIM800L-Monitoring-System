@@ -1,0 +1,409 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    
+    <!-- Favicon links -->
+    <link rel="icon" href="{{ url_for('static', filename='icons/settings/favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" sizes="16x16" href="{{ url_for('static', filename='icons/settings/favicon-16x16.png') }}">
+    <link rel="icon" sizes="32x32" href="{{ url_for('static', filename='icons/settings/favicon-32x32.png') }}">
+    <link rel="icon" sizes="192x192" href="{{ url_for('static', filename='icons/settings/android-chrome-192x192.png') }}">
+    <link rel="icon" sizes="512x512" href="{{ url_for('static', filename='icons/settings/android-chrome-512x512.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/settings/apple-touch-icon.png') }}">
+    
+    <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}" type="application/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/settings.css') }}">
+    
+<script>
+
+const API_BASE_URL = '/handle_settings'; // Используем проксирование через nginx
+
+// Глобальная переменная для хранения настроек
+let appSettings = {};
+
+// Основные функции
+async function initialize() {
+    try {
+        const response = await fetch(`${API_BASE_URL}`);
+        if (!response.ok) throw new Error('Network error');
+        appSettings = await response.json();
+        document.getElementById('settings-container').dataset.settings = JSON.stringify(appSettings);
+        renderSettings(appSettings);
+    } catch (error) {
+        console.error("Error loading settings:", error);
+        alert('Ошибка загрузки настроек');
+    }
+}
+
+// Функция для сортировки элементов по order
+function sortByOrder(elements) {
+    return elements.sort((a, b) => {
+        const orderA = a.order || 0;
+        const orderB = b.order || 0;
+        return orderA - orderB;
+    });
+}
+
+function renderSettings(settings) {
+    const container = document.getElementById('settings-container');
+    container.innerHTML = '';
+    
+    // Преобразуем в массив и сортируем категории
+    const sortedCategories = sortByOrder(
+        Object.entries(settings).map(([name, data]) => ({
+            name,
+            title: data.title || name,
+            order: data.order || 0,
+            data
+        }))
+    );
+    
+    sortedCategories.forEach(({name, title, data}) => {
+        const categoryElement = createCategoryElement(name, title, data);
+        container.appendChild(categoryElement);
+    });
+}
+
+function createCategoryElement(name, title, data) {
+    const category = document.createElement('div');
+    category.className = 'settings-category';
+    const currentPath = [name]; // Начинаем новый путь
+    
+    const titleElement = document.createElement('h2');
+    titleElement.textContent = title;
+    category.appendChild(titleElement);
+    
+    // Подготовка элементов категории
+    const elements = [];
+    
+    // Обрабатываем подкатегории
+    const subCategories = sortByOrder(
+        Object.entries(data)
+            .filter(([key, value]) => value.title && value.order)
+            .map(([key, value]) => ({
+                key,
+                title: value.title,
+                order: value.order || 0,
+                data: value
+            }))
+    );
+    
+    subCategories.forEach(({key, title, data}) => {
+        elements.push({
+            type: 'subcategory',
+            title,
+            order: data.order || 0,
+            data,
+            path: [...currentPath, key] // Передаём путь
+        });
+    });
+    
+    // Обрабатываем настройки
+    const settings = sortByOrder(
+        Object.entries(data)
+            .filter(([key, value]) => !value.title && key !== 'title' && key !== 'order')
+            .map(([key, value]) => ({
+                key,
+                name: value.name || key,
+                order: value.order || 0,
+                data: value
+            }))
+    );
+    
+    settings.forEach(({key, name, data}) => {
+        elements.push({
+            type: 'setting',
+            key,
+            name,
+            order: data.order || 0,
+            data,
+            path: currentPath // Передаём текущий путь
+        });
+    });
+    
+    // Сортируем все элементы категории по order
+    sortByOrder(elements).forEach(element => {
+        if (element.type === 'subcategory') {
+            const subCategory = createSubCategoryElement(
+                element.title, 
+                element.data, 
+                element.path // Передаём путь
+            );
+            category.appendChild(subCategory);
+        } else {
+            const setting = createSettingElement(
+                element.key, 
+                element.data, 
+                element.path // Передаём путь
+            );
+            if (setting) category.appendChild(setting);
+        }
+    });
+    
+    return category;
+}
+
+function createSubCategoryElement(title, data, parentPath = []) {
+    const subCategory = document.createElement('div');
+    subCategory.className = 'settings-subcategory';
+    
+    const titleElement = document.createElement('h3');
+    titleElement.textContent = title;
+    subCategory.appendChild(titleElement);
+    
+	const sortedSettings = sortByOrder(
+		Object.entries(data)
+			.filter(([key]) => key !== 'title' && key !== 'order')
+			.map(([key, value]) => ({
+				key,
+				name: value.name || key,
+				order: value.order || 0,
+				data: value,
+				path: parentPath
+			}))
+	);
+    
+    sortedSettings.forEach(({key, data, path}) => {
+        const setting = createSettingElement(key, data, path);
+        if (setting) subCategory.appendChild(setting);
+    });
+    
+    return subCategory;
+}
+
+function createSettingElement(key, setting, parentPath = []) {
+    if (!setting.type) return null;
+    
+    // Генерируем полный ключ с учётом пути
+    const fullKey = [...parentPath, key].join(':');
+    
+    const group = document.createElement('div');
+    group.className = 'input-group';
+    group.title = setting.description || '';
+    
+    const label = document.createElement('label');
+    label.htmlFor = fullKey;
+    label.textContent = setting.name || key;
+    
+    let input;
+    switch (setting.type) {
+        case 'boolean':
+            input = document.createElement('input');
+            input.type = 'checkbox';
+            input.id = fullKey;
+            input.checked = setting.current;
+            break;
+            
+        case 'integer':
+            input = document.createElement('input');
+            input.type = 'range';
+            input.id = fullKey;
+            input.min = setting.min;
+            input.max = setting.max;
+            input.value = setting.current;
+            
+            const valueDisplay = document.createElement('span');
+            valueDisplay.className = 'value-display';
+            valueDisplay.textContent = setting.current;
+            
+            input.addEventListener('input', () => {
+                valueDisplay.textContent = input.value;
+            });
+            
+            group.appendChild(input);
+            group.appendChild(valueDisplay);
+            break;
+            
+        case 'enum':
+            input = document.createElement('select');
+            input.id = fullKey;
+            
+            setting.options.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option.value;
+                optionElement.textContent = option.text;
+                optionElement.selected = option.value === setting.current;
+                input.appendChild(optionElement);
+            });
+            break;
+            
+        default:
+            console.warn(`Unknown setting type: ${setting.type}`);
+            return null;
+    }
+    
+    group.prepend(label);
+    group.appendChild(input);
+    return group;
+}
+
+async function saveSettings() {
+    const settingsToSave = collectStructuredSettings();
+    try {
+        const response = await fetch(`${API_BASE_URL}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // 'X-CSRF-TOKEN': getCookie('csrf_token') // Если используется CSRF
+            },
+            body: JSON.stringify(settingsToSave)
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            alert('Настройки сохранены!');
+            if (result.settings) {
+                appSettings = result.settings;
+                document.getElementById('settings-container').dataset.settings = JSON.stringify(appSettings);
+            }
+        } else {
+            throw new Error(result.message || 'Ошибка сохранения');
+        }
+    } catch (error) {
+        console.error('Save error:', error);
+        alert('Ошибка сохранения настроек: ' + error.message);
+    }
+}
+
+function collectStructuredSettings() {
+    const settings = {};
+    
+    document.querySelectorAll('.input-group input, .input-group select').forEach(input => {
+        const fullKey = input.id;
+        const path = fullKey.split(':');
+        
+        let value;
+        if (input.type === 'checkbox') {
+            value = input.checked;
+        } else if (input.type === 'range' || input.type === 'number') {
+            value = parseInt(input.value);
+        } else if (input.tagName === 'SELECT') {
+            value = input.value;
+        } else {
+            value = input.value;
+        }
+        
+        let currentObj = settings;
+        for (let i = 0; i < path.length; i++) {
+            const part = path[i];
+            if (i === path.length - 1) {
+                currentObj[part] = value;
+            } else {
+                currentObj[part] = currentObj[part] || {};
+                currentObj = currentObj[part];
+            }
+        }
+    });
+    
+    return settings;
+}
+
+function findSettingPath(targetKey, settings) {
+    const targetPath = targetKey.split(':'); // Разделяем по двоеточию
+    
+    function searchPath(obj, currentPath) {
+        for (const key of Object.keys(obj)) {
+            const newPath = [...currentPath, key];
+            
+            // Сравниваем текущий путь с целевым
+            if (JSON.stringify(newPath) === JSON.stringify(targetPath)) {
+                return newPath;
+            }
+            
+            if (typeof obj[key] === 'object' && obj[key] !== null) {
+                const found = searchPath(obj[key], newPath);
+                if (found) return found;
+            }
+        }
+        return null;
+    }
+    
+    return searchPath(settings, []);
+}
+
+
+async function loadDefaultSettings() {
+    if (!confirm('Загрузить настройки по умолчанию?')) return;
+
+    try {
+        // Рекурсивный обход всех настроек
+        function applyDefaults(obj, path = []) {
+            Object.entries(obj).forEach(([key, value]) => {
+                const newPath = [...path, key];
+                
+                if (value.default !== undefined) {
+                    const fullKey = newPath.join(':');
+                    updateInputElement(fullKey, value.default);
+                }
+                
+                if (typeof value === 'object' && value !== null) {
+                    applyDefaults(value, newPath);
+                }
+            });
+        }
+        
+        applyDefaults(appSettings);
+        alert('Настройки по умолчанию загружены');
+    } catch (error) {
+        console.error('Error loading defaults:', error);
+        alert('Ошибка загрузки настроек по умолчанию');
+    }
+}
+
+function updateInputElement(fullKey, value) {
+    const element = document.getElementById(fullKey);
+    if (!element) {
+        console.warn('Element not found:', fullKey);
+        return;
+    }
+
+    // Для чекбоксов
+    if (element.type === 'checkbox') {
+        element.checked = value;
+    
+    // Для select
+    } else if (element.tagName === 'SELECT') {
+        element.value = value.toString();
+    
+    // Для range и number
+    } else if (element.type === 'range' || element.type === 'number') {
+        element.value = value;
+        // Обновляем связанный display
+        const display = element.parentElement.querySelector('.value-display');
+        if (display) display.textContent = value;
+    
+    // Для других типов
+    } else {
+        element.value = value;
+    }
+
+}
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', initialize);
+</script>
+</head>
+
+<body>
+{% block content %}
+  <div class="header-section">
+    <h1 class="page-title">Страница настроек</h1>
+    <div class="user-info">
+      <p class="user-id">Вы вошли как <span class="user-id-value">{{ current_user.username }}</span></p>
+      <a href="{{ url_for('logout') }}" class="logout-link">Выйти</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="settings-grid" id="settings-container"></div>
+    
+    <div class="button-container">
+      <button class="default-btn" onclick="loadDefaultSettings()">По умолчанию</button>
+      <button onclick="saveSettings()">Сохранить</button>
+    </div>
+  </div>
+{% endblock %}
+</body>
+</html>

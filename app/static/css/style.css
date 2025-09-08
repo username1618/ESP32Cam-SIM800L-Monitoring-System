@@ -1,0 +1,307 @@
+
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 15px;
+	user-select: none;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.margin-left {
+	margin-left: 30px;
+}
+
+h1 {
+    text-align: center;
+    color: #4CAF50;
+	margin: 5px;
+}
+
+
+/* Slider Styles */
+.slider-container {
+    display: flex;
+    align-items: center; /* Align items vertically centered */
+    justify-content: flex-start; /* Align items to the start */
+    margin: 15px 0;
+}
+
+input[type="range"] {
+    -webkit-appearance: none; /* Remove default styling */
+    appearance: none; /* Remove default styling */
+    width: 90%; /* Increased width of the slider */
+    height: 20px; /* Keep the height of the slider track */
+    background: #ddd; /* Background color of the track */
+    border-radius: 5px; /* Rounded corners for the track */
+    outline: none; /* Remove outline */
+    cursor: pointer; /* Change cursor to pointer */
+    margin-left: 10px; /* Add margin to position it correctly */
+}
+
+/* Slider Thumb Styles */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Remove default styling */
+    appearance: none; /* Remove default styling */
+    width: 48px; /* Increased width of the thumb */
+    height: 30px; /* Height of the thumb */
+    background: #4CAF50; /* Color of the thumb */
+    border-radius: 5px; /* Make the thumb rectangular */
+    cursor: pointer; /* Change cursor to pointer */
+    margin-top: -10px; /* Adjust to align the thumb with the track */
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 35px; /* Increased width of the thumb */
+    height: 30px; /* Height of the thumb */
+    background: #4CAF50; /* Color of the thumb */
+    border-radius: 5px; /* Make the thumb rectangular */
+    cursor: pointer; /* Change cursor to pointer */
+}
+
+input[type="range"]::-ms-thumb {
+    width: 35px; /* Increased width of the thumb */
+    height: 30px; /* Height of the thumb */
+    background: #4CAF50; /* Color of the thumb */
+    border-radius: 5px; /* Make the thumb rectangular */
+    cursor: pointer; /* Change cursor to pointer */
+}
+
+/* Slider Track Styles for Different Browsers */
+input[type="range"]::-webkit-slider-runnable-track {
+    height: 10px; /* Keep the height of the track */
+    background: #ddd; /* Background color of the track */
+    border-radius: 5px; /* Rounded corners for the track */
+}
+
+input[type="range"]::-moz-range-track {
+    height: 10px; /* Keep the height of the track */
+    background: #ddd; /* Background color of the track */
+    border-radius: 5px; /* Rounded corners for the track */
+}
+
+input[type="range"]::-ms-track {
+    height: 10px; /* Keep the height of the track */
+    background: transparent; /* Background color of the track */
+    border-color: transparent; /* Border color */
+    color: transparent; /* Color */
+}
+
+
+/* Image Info Styles */
+.image-info {
+    background: #e9ecef;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+	user-select: text;
+}
+
+.image-info p {
+    margin: 5px 0; /* Adjust the top and bottom margin */
+}
+
+
+.image-info table {
+    width: 100%; /* Full width of the container */
+    border-collapse: collapse; /* Collapse borders */
+}
+
+.image-info td {
+    padding: 5px; /* Padding for table cells */
+    border: 1px solid #ccc; /* Border for table cells */
+    white-space: nowrap; /* Prevent text from wrapping */
+}
+
+.image-info .fixed-width {
+    width: 15%; /* Set width for the first and third columns */
+    text-align: left; /* Left align text */
+}
+
+.image-info .value-cell {
+    width: 35%; /* Set width for the second and fourth columns */
+    text-align: left; /* Left align text */
+}
+
+.image-info tr:nth-child(even) {
+    background-color: #f2f2f2; /* Alternate row color */
+}
+
+
+/* Image Styles */
+.last-image {
+    height: auto; /* Maintain aspect ratio */
+    max-height: 80vh; /* Set max height to 80% of the viewport height */
+    width: 100%; /* Full width for responsiveness */
+    display: block; /* Ensure the image is a block element */
+    margin: 0 auto; /* Center the image */
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Image Styles */
+.last-image {
+    height: auto; /* Maintain aspect ratio */
+    max-height: 80vh; /* Set max height to 80% of the viewport height */
+    width: 100%; /* Full width for responsiveness */
+    display: block; /* Ensure the image is a block element */
+    margin: 0 auto; /* Center the image */
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease; /* Smooth transition for zoom effect */
+    cursor: pointer; /* Change cursor to pointer */
+}
+
+.last-image:hover {
+    transform: scale(1.01); /* Slightly enlarge the image on hover */
+}
+
+
+/* Full-Screen Overlay Styles */
+.full-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it is on top of other content */
+}
+
+.full-screen-image {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    cursor: pointer; /* Change cursor to indicate clickable */
+}
+
+
+
+/* Chart Date Range bar */
+.timeContainer {
+	margin-top: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center; /* Align items vertically centered */
+    justify-content: flex-start; /* Align items to the start */
+}
+
+.styled-select {
+    width: 100%;
+	height: 30px;
+	margin-left: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    font-size: 14px;
+    transition: border-color 0.3s;
+    display: inline-block; /* Change to inline-block */
+    vertical-align: middle; /* Align vertically */
+	
+}
+
+.styled-select:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+#chartContainer {
+    margin-top: 0; /* Ensure there's no additional margin on top */
+}
+#chartContainer2 {
+    margin-top: 0; /* Ensure there's no additional margin on top */
+}
+
+
+/* Chart Image Styles */
+.chart-image {
+    height: auto; /* Maintain aspect ratio */
+    max-height: 80vh; /* Set max height to 80% of the viewport height */
+    width: 100%; /* Full width for responsiveness */
+    display: block; /* Ensure the image is a block element */
+    margin: 0 auto; /* Center the image */
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease; /* Smooth transition for zoom effect */
+    cursor: pointer;
+}
+
+.chart-image:hover {
+    transform: scale(1.01); /* Slightly enlarge the image on hover */
+}
+
+.loading-spinner {
+    border: 8px solid #f3f3f3; /* Light grey */
+    border-top: 8px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 40px; /* Size of the spinner */
+    height: 40px; /* Size of the spinner */
+    animation: spin 1s linear infinite; /* Animation */
+    margin: 0 auto; /* Center the spinner */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+
+/* Responsive Styles */
+@media (max-width: 600px) {
+	body {
+		padding: 5px;
+	}
+	
+	.container {
+		padding-left: 30px;   /* Left padding */
+		padding-right: 30px;  /* Right padding */
+	}
+	
+	
+    .slider-container {
+        align-items: flex-start; /* Align items to the start */
+    }
+
+    input[type="range"] {
+        width: 80%; /* Full width for the slider on mobile */
+        height: 15px; /* Increase height for better touch target */
+    }
+
+    .image-info {
+        font-size: 10px; /* Smaller font size for mobile */
+        margin-top: 5px; /* Add margin to separate from the slider */
+    }
+
+    h1 {
+        font-size: 20px; /* Adjust heading size for mobile */
+    }
+	
+	label {
+		font-size: 14px; /* Adjust labels size for mobile */
+	}
+	
+	.styled-select {
+	margin-left: 5px;
+    font-size: 12px;
+	font-color: #000;
+	}
+	
+	.margin-left {
+		margin-left: 10px;
+	}
+}

@@ -1,0 +1,576 @@
+{
+    "Device": {
+        "title": "Общие настройки",
+        "order": 1,
+        "General": {
+            "title": "Основные параметры",
+            "order": 1,
+            "timeToSleepMinutes": {
+                "name": "Период сна, мин",
+                "description": "Количество минут на которое устройство уходит в спящий режим",
+                "type": "integer",
+                "min": 1,
+                "max": 120,
+                "current": 30,
+                "default": 30,
+                "order": 1
+            }
+        },
+        "PhotoCapture": {
+            "title": "Съемка фото",
+            "order": 2,
+            "flashDelay": {
+                "name": "Прогрев вспышки, мс",
+                "description": "Количество милисекунд между включением вспышки и получением кадра",
+                "type": "integer",
+                "min": 0,
+                "max": 500,
+                "current": 100,
+                "default": 100,
+                "order": 1
+            },
+            "photoCount": {
+                "name": "Количество кадров",
+                "description": "Будет снято указанное количество кадров. В итоге отправится только один оптимальный кадр.",
+                "type": "integer",
+                "min": 1,
+                "max": 20,
+                "current": 3,
+                "default": 5,
+                "order": 2
+            },
+            "photoDelay": {
+                "name": "Задержка между кадрами, мс",
+                "description": "Задержка между кадрами в серии",
+                "type": "integer",
+                "min": 0,
+                "max": 300,
+                "current": 100,
+                "default": 100,
+                "order": 3
+            }
+        },
+        "SendSMS": {
+            "title": "Отправка SMS на сервер",
+            "order": 3,
+			"returnSms": {
+				"name": "Отправлять SMS",
+				"description": "Если включено, устройство будет отправлять все новые SMS на сервер",
+				"type": "boolean",
+				"current": true,
+				"default": false,
+				"order": 1
+			},
+			"smsReadMode": {
+				"name": "Режим отправки SMS",
+				"description": "Определяет, какие SMS отправлять: только новые (REC UNREAD) или все (ALL)",
+				"type": "enum",
+				"options": [
+					{"value": "NEW", "text": "Только новые"},
+					{"value": "ALL", "text": "Все"}
+				],
+				"current": "ALL",
+				"default": "ALL",
+				"order": 1
+			},
+			"deleteSmsAfterSend": {
+				"name": "Удалять SMS после отправки",
+				"description": "Если включено, SMS будут автоматически удаляться с SIM-карты после успешной отправки на сервер",
+				"type": "boolean",
+				"current": false,
+				"default": false,
+				"order": 3
+			},
+			"batchSms": {
+				"name": "Размер пакета отправки",
+				"description": "Количество SMS, отправляемых на сервер за один раз. Ограничение необходимо для надежной передачи данных и предотвращения перегрузки сети.",
+				"type": "integer",
+				"min": 1,
+				"max": 20,
+				"current": 5,
+				"default": 5,
+				"order": 4
+			}
+        },
+        "Network": {
+            "title": "Сетевые настройки",
+            "order": 4,
+            "sim800StartDelaySec": {
+                "name": "Ожидание активации GSM модул, сек",
+                "description": "Количество секунд для ожидания активации модуля SIM800. При слишком малых значениях модуль не сможет подключиться к GSM сети.",
+                "type": "integer",
+                "min": 20,
+                "max": 120,
+                "current": 60,
+                "default": 60,
+                "order": 1
+            },
+            "sim800TransportDelay": {
+                "name": "Задержка трансляции данных, мс",
+                "description": "Небольшая задержка каждые 1KB данных при передаче их от ESP32 в SIM800. Для совершения POST-запроса",
+                "type": "integer",
+                "min": 0,
+                "max": 100,
+                "current": 15,
+                "default": 15,
+                "order": 2
+            },
+            "sim800PostDelay": {
+                "name": "Задержка при POST запросе, мс",
+                "description": "Увеличенная задержка перед выполнением POST-запрос.",
+                "type": "integer",
+                "min": 0,
+                "max": 3000,
+                "current": 1500,
+                "default": 1500,
+                "order": 3
+            },
+            "maxRetriesToSendImage": {
+                "name": "Макс. попыток отправки",
+                "description": "Максимальное количество попыток отправки изображения по HTTP или FTP",
+                "type": "integer",
+                "min": 1,
+                "max": 10,
+                "current": 3,
+                "default": 5,
+                "order": 4
+            }
+        }
+    },
+    "Sensors": {
+        "title": "Датчики",
+        "order": 2,
+        "Voltage": {
+            "title": "Датчик напряжения",
+            "order": 1,
+            "numReadings": {
+                "name": "Количество измерений",
+                "description": "Количество измерений для получения напряжения с помощью медианного фильтра",
+                "type": "integer",
+                "min": 1,
+                "max": 100,
+                "current": 30,
+                "default": 30,
+                "order": 1
+            },
+            "totalDurationSec": {
+                "name": "Продолжительность измерений, сек",
+                "description": "Продолжительность измерений в секундах для получения напряжения",
+                "type": "integer",
+                "min": 1,
+                "max": 60,
+                "current": 5,
+                "default": 3,
+                "order": 2
+            }
+        },
+        "DHT": {
+            "title": "Датчик температуры и влажности",
+            "order": 2,
+            "numReadings": {
+                "name": "Количество измерений",
+                "description": "Количество измерений для получения температуры и влажности с помощью медианного фильтра",
+                "type": "integer",
+                "min": 1,
+                "max": 100,
+                "current": 60,
+                "default": 30,
+                "order": 1
+            },
+            "totalDurationSec": {
+                "name": "Продолжительность измерений, сек",
+                "description": "Продолжительность измерений в секундах для считывания DHT",
+                "type": "integer",
+                "min": 1,
+                "max": 60,
+                "current": 15,
+                "default": 3,
+                "order": 2
+            }
+        }
+    },
+    "Camera": {
+        "title": "Камера",
+        "order": 3,
+        "Capture": {
+            "title": "Параметры съемки",
+            "order": 1,
+            "framesize": {
+                "name": "Разрешение / Framesize",
+                "description": "Размер получаемого изображения в пикселях. Влияет на скорость работы и потребление памяти.",
+                "type": "enum",
+                "options": [
+                    {
+                        "value": 6,
+                        "text": "UXGA (1600x1200)"
+                    },
+                    {
+                        "value": 5,
+                        "text": "SXGA (1280x1024)"
+                    },
+                    {
+                        "value": 4,
+                        "text": "XGA (1024x768)"
+                    },
+                    {
+                        "value": 3,
+                        "text": "SVGA (800x600)"
+                    },
+                    {
+                        "value": 2,
+                        "text": "VGA (640x480)"
+                    },
+                    {
+                        "value": 1,
+                        "text": "CIF (400x296)"
+                    },
+                    {
+                        "value": 0,
+                        "text": "QVGA (320x240)"
+                    }
+                ],
+                "current": 6,
+                "default": 6,
+                "order": 1
+            },
+            "pixelFormat": {
+                "name": "Формат пикселей",
+                "description": "Формат кодирования изображения. JPEG рекомендуется для экономии памяти, RAW — для максимального качества.",
+                "type": "enum",
+                "options": [
+                    {
+                        "value": 0,
+                        "text": "JPEG (сжатый формат)"
+                    },
+                    {
+                        "value": 1,
+                        "text": "RGB565 (16-битный цвет)"
+                    },
+                    {
+                        "value": 2,
+                        "text": "YUV422 (стандартный YUV)"
+                    },
+                    {
+                        "value": 3,
+                        "text": "GRAYSCALE (чёрно-белый)"
+                    },
+                    {
+                        "value": 4,
+                        "text": "RAW (сырые данные сенсора)"
+                    }
+                ],
+                "current": 0,
+                "default": 0,
+                "order": 2
+            },
+            "quality": {
+                "name": "Качество / Quality",
+                "description": "Степень сжатия JPEG (10 - наилучшее, 63 - наихудшее качество). Влияет только при pixel_format = JPEG.",
+                "type": "integer",
+                "min": 10,
+                "max": 63,
+                "current": 12,
+                "default": 12,
+                "order": 3
+            }
+        },
+        "ImageAdjustment": {
+            "title": "Коррекция изображения",
+            "order": 2,
+            "brightness": {
+                "name": "Яркость / Brightness",
+                "description": "Общая яркость изображения (-2 - темнее, +2 - ярче). Работает независимо от AEC.",
+                "type": "integer",
+                "min": -2,
+                "max": 2,
+                "current": 0,
+                "default": 0,
+                "order": 1
+            },
+            "contrast": {
+                "name": "Контраст / Contrast",
+                "description": "Разница между светлыми и темными участками (-2 - мягче, +2 - резче).",
+                "type": "integer",
+                "min": -2,
+                "max": 2,
+                "current": 0,
+                "default": 1,
+                "order": 2
+            },
+            "saturation": {
+                "name": "Насыщенность / Saturation",
+                "description": "Интенсивность цветов (-2 - ч/б, 0 - нормально, +2 - яркие цвета). Не действует в режиме Grayscale.",
+                "type": "integer",
+                "min": -2,
+                "max": 2,
+                "current": -2,
+                "default": 0,
+                "order": 3
+            },
+            "specialEffect": {
+                "name": "Спецэффект / Special Effect",
+                "description": "Применение цветовых фильтров к изображению. Переопределяет saturation и awb.",
+                "type": "enum",
+                "options": [
+                    {
+                        "value": 6,
+                        "text": "Сепия / Sepia"
+                    },
+                    {
+                        "value": 5,
+                        "text": "Синий фильтр / Blue Tint"
+                    },
+                    {
+                        "value": 4,
+                        "text": "Зеленый фильтр / Green Tint"
+                    },
+                    {
+                        "value": 3,
+                        "text": "Красный фильтр / Red Tint"
+                    },
+                    {
+                        "value": 2,
+                        "text": "Чёрно-белый / Grayscale"
+                    },
+                    {
+                        "value": 1,
+                        "text": "Негатив / Negative"
+                    },
+                    {
+                        "value": 0,
+                        "text": "Нет эффекта / No Effect"
+                    }
+                ],
+                "current": 0,
+                "default": 0,
+                "order": 4
+            },
+            "hmirror": {
+                "name": "Горизонтальное отражение / H-Mirror",
+                "description": "Зеркальное отражение изображения по горизонтали",
+                "type": "boolean",
+                "current": false,
+                "default": false,
+                "order": 5
+            },
+            "vflip": {
+                "name": "Вертикальное отражение / V-Flip",
+                "description": "Зеркальное отражение изображения по вертикали",
+                "type": "boolean",
+                "current": false,
+                "default": false,
+                "order": 6
+            }
+        },
+        "Exposure": {
+            "title": "Экспозиция",
+            "order": 3,
+            "aec": {
+                "name": "Автоэкспозиция / Auto Exposure",
+                "description": "Автоматический расчет экспозиции. Если включено (true), aecValue игнорируется.",
+                "type": "boolean",
+                "current": true,
+                "default": true,
+                "order": 1
+            },
+            "aec2": {
+                "name": "Цифровая обработка экспозиции / AEC DSP",
+                "description": "Дополнительные алгоритмы обработки экспозиции. Работает только при aec = true.",
+                "type": "boolean",
+                "current": false,
+                "default": false,
+                "order": 2
+            },
+            "aeLevel": {
+                "name": "Уровень экспозиции / AE Level",
+                "description": "Коррекция уровня автоэкспозиции (-2 - темнее, +2 - ярче). Влияет только при aec = true.",
+                "type": "integer",
+                "min": -2,
+                "max": 2,
+                "current": 0,
+                "default": 0,
+                "order": 3
+            },
+            "aecValue": {
+                "name": "Значение экспозиции / AEC Value",
+                "description": "Ручное значение экспозиции (0-1200). Активно только при aec = false.",
+                "type": "integer",
+                "min": 0,
+                "max": 1200,
+                "current": 800,
+                "default": 800,
+                "order": 4
+            }
+        },
+        "Gain": {
+            "title": "Усиление сигнала",
+            "order": 4,
+            "agc": {
+                "name": "Автоусиление / Auto Gain Control",
+                "description": "Автоматическая регулировка усиления сигнала. Если включено (true), agcGain игнорируется.",
+                "type": "boolean",
+                "current": true,
+                "default": true,
+                "order": 1
+            },
+            "agcGain": {
+                "name": "Усиление AGC / AGC Gain",
+                "description": "Ручное значение усиления (0-30). Активно только при agc = false.",
+                "type": "integer",
+                "min": 0,
+                "max": 30,
+                "current": 20,
+                "default": 20,
+                "order": 2
+            },
+            "gainCeiling": {
+                "name": "Предел усиления / Gain Ceiling",
+                "description": "Максимальное значение усиления сигнала (0=2x, 1=4x, ..., 4=32x). Ограничивает agcGain и AGC.",
+                "type": "integer",
+                "min": 0,
+                "max": 4,
+                "current": 1,
+                "default": 1,
+                "order": 3
+            }
+        },
+        "WhiteBalance": {
+            "title": "Баланс белого",
+            "order": 5,
+            "awb": {
+                "name": "Автобаланс белого / Auto White Balance",
+                "description": "Автоматическая корректировка цветовой температуры. Если включено (true), wbMode игнорируется.",
+                "type": "boolean",
+                "current": false,
+                "default": true,
+                "order": 1
+            },
+            "awbGain": {
+                "name": "Усиление AWB / AWB Gain",
+                "description": "Автоматическая регулировка усиления баланса белого. Работает только при awb = true.",
+                "type": "boolean",
+                "current": false,
+                "default": false,
+                "order": 2
+            },
+            "wbMode": {
+                "name": "Режим баланса белого / WB Mode",
+                "description": "Предустановки баланса белого. Активно только при awb = false.",
+                "type": "enum",
+                "options": [
+                    {
+                        "value": 0,
+                        "text": "Авто / Auto"
+                    },
+                    {
+                        "value": 1,
+                        "text": "Солнечно / Sunny"
+                    },
+                    {
+                        "value": 2,
+                        "text": "Облачно / Cloudy"
+                    },
+                    {
+                        "value": 3,
+                        "text": "Офис / Office"
+                    },
+                    {
+                        "value": 4,
+                        "text": "Домашнее / Home"
+                    }
+                ],
+                "current": 4,
+                "default": 4,
+                "order": 3
+            }
+        },
+        "ImageProcessing": {
+            "title": "Обработка изображения",
+            "order": 6,
+            "bpc": {
+                "name": "Коррекция черных пикселей / BPC",
+                "description": "Устранение шумов в темных участках.",
+                "type": "boolean",
+                "current": true,
+                "default": true,
+                "order": 1
+            },
+            "wpc": {
+                "name": "Коррекция белых пикселей / WPC",
+                "description": "Предотвращение пересветов в ярких участках.",
+                "type": "boolean",
+                "current": true,
+                "default": true,
+                "order": 2
+            },
+            "rawGma": {
+                "name": "Гамма-коррекция / Gamma",
+                "description": "Коррекция гаммы изображения. Влияет на контраст в тенях.",
+                "type": "boolean",
+                "current": true,
+                "default": true,
+                "order": 3
+            },
+            "lensCorrection": {
+                "name": "Коррекция линзы / Lens Correction",
+                "description": "Компенсация оптических искажений (виньетирование, дисторсия). Не работает при включенном DCW.",
+                "type": "boolean",
+                "current": false,
+                "default": false,
+                "order": 4
+            },
+            "dcw": {
+                "name": "Уменьшение разрешения / DCW",
+                "description": "Цифровое уменьшение размера изображения. Может ухудшить качество.",
+                "type": "boolean",
+                "current": false,
+                "default": true,
+                "order": 5
+            }
+        },
+        "HardwareFixes": {
+            "title": "Аппаратные исправления",
+            "order": 7,
+            "bankSelFix": {
+                "name": "Фикс выбора банка регистров",
+                "description": "Исправляет проблемы с выбором банка регистров, обеспечивая корректную работу с памятью устройства (0xFF=0x01). Это позволяет избежать ошибок при доступе к данным в разных банках.",
+                "type": "boolean",
+                "current": true,
+                "default": true,
+                "order": 1
+            },
+            "clockSpeedFix": {
+                "name": "Оптимизация тактовой частоты DSP",
+                "description": "Настройка тактовой частоты цифрового сигнального процессора (DSP) для повышения производительности и стабильности работы устройства (0x11=0x01). Это улучшает обработку сигналов и уменьшает задержки.",
+                "type": "boolean",
+                "current": true,
+                "default": true,
+                "order": 2
+            },
+            "hrefFix": {
+                "name": "Фикс обрезки HREF",
+                "description": "Предотвращает обрезку сигнала HREF, что обеспечивает корректное считывание данных изображения и улучшает качество захвата (0x15=0x00). Это особенно важно для стабильной работы с видеопотоками.",
+                "type": "boolean",
+                "current": true,
+                "default": true,
+                "order": 3
+            },
+            "jpegQualityFix": {
+                "name": "Устранение артефактов JPEG",
+                "description": "Исправляет проблемы с качеством изображений, устраняя артефакты сжатия JPEG (0x44=0x06). Это позволяет получать более четкие и качественные фотографии.",
+                "type": "boolean",
+                "current": true,
+                "default": true,
+                "order": 4
+            },
+            "pinkTintFix": {
+                "name": "Коррекция розового оттенка",
+                "description": "Устраняет проблему с розовым оттенком на изображениях, обеспечивая более естественные цвета (0x7C/0x7D). Это улучшает визуальное восприятие и точность цветопередачи.",
+                "type": "boolean",
+                "current": true,
+                "default": true,
+                "order": 5
+            }
+        }
+    }
+}

@@ -1,0 +1,41 @@
+FROM python:3.8.16-slim
+
+ENV PYTHONUNBUFFERED=1
+ENV DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /srv/app
+
+# Изменение источников APT
+RUN echo 'Acquire::http::Timeout "300";' >> /etc/apt/apt.conf.d/99timeout
+RUN echo "deb http://ftp.ru.debian.org/debian bookworm main contrib non-free" > /etc/apt/sources.list && \
+    echo "deb http://ftp.ru.debian.org/debian bookworm-updates main contrib non-free" >> /etc/apt/sources.list && \
+    echo "deb http://ftp.ru.debian.org/debian-security bookworm-security main contrib non-free" >> /etc/apt/sources.list
+
+# Установка зависимостей
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libjpeg-dev \
+    zlib1g-dev \
+    libopenblas-dev \
+    liblapack-dev \
+    build-essential \
+	&& rm -rf /var/lib/apt/lists/*
+
+COPY ./app_web/requirements.txt /srv/app/
+RUN pip install --no-cache-dir -r requirements.txt 
+
+COPY ./static/ /srv/app/static/
+COPY ./data/ /srv/app/data/
+COPY ./templates/ /srv/app/templates/
+COPY ./ssl/ /srv/app/ssl/
+COPY ./camera_settings.json /srv/app/
+COPY ./blocked_ips.txt /srv/app/
+COPY ./.env /srv/app/
+
+COPY ./app_web/*.py /srv/app/
+COPY ./app_web/web.log /srv/app/
+
+# Установка прав на директорию приложения
+RUN chmod -R 755 /srv/app
+
+ENTRYPOINT ["python"]
+CMD ["main.py"]

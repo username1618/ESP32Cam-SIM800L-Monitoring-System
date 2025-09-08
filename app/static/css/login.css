@@ -1,0 +1,134 @@
+:root {
+  --primary-color: #4361ee;
+  --primary-hover: #3a56d4;
+  --background: #121212;
+  --card-bg: #1e1e1e;
+  --text-color: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --border-color: #333;
+  --border-radius: 8px;
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  --transition: all 0.2s ease;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: var(--background);
+  color: var(--text-color);
+  line-height: 1.6;
+  padding: 0;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.auth-container {
+  max-width: 450px;
+  width: 100%;
+  padding: 2rem;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  margin: 1rem;
+}
+
+.auth-title {
+  color: var(--primary-color);
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.75rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-label {
+  font-size: 0.95rem;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.input-field {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  font-size: 1rem;
+  transition: var(--transition);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-field:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+}
+
+.auth-button {
+  padding: 0.75rem;
+  border: none;
+  border-radius: var(--border-radius);
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.auth-button:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+}
+
+.auth-button:active {
+  transform: translateY(0);
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  .auth-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .auth-form {
+    gap: 1.25rem;
+  }
+
+  .input-field {
+    padding: 0.65rem 0.9rem;
+  }
+}
+
+@media (min-width: 1400px) {
+  .auth-container {
+    max-width: 500px;
+    padding: 2.5rem;
+  }
+}

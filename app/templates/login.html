@@ -1,0 +1,39 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Настройка области просмотра под ширину экрана -->
+    <title>Авторизация</title>
+	
+    <!-- Favicon links -->
+    <link rel="icon" href="{{ url_for('static', filename='icons/favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" sizes="16x16" href="{{ url_for('static', filename='icons/favicon-16x16.png') }}">
+    <link rel="icon" sizes="32x32" href="{{ url_for('static', filename='icons/favicon-32x32.png') }}">
+    <link rel="icon" sizes="192x192" href="{{ url_for('static', filename='icons/android-chrome-192x192.png') }}">
+    <link rel="icon" sizes="512x512" href="{{ url_for('static', filename='icons/android-chrome-512x512.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
+	
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
+
+</head>
+
+<body>
+	{% block content %}
+	<div class="auth-container">
+	  <h2 class="auth-title">Вход в систему</h2>
+	  <form method="POST" class="auth-form">
+		<div class="input-group">
+		  <label for="username" class="input-label">Имя пользователя:</label>
+		  <input type="text" id="username" name="username" class="input-field" required>
+		</div>
+		<div class="input-group">
+		  <label for="password" class="input-label">Пароль:</label>
+		  <input type="password" id="password" name="password" class="input-field" required>
+		</div>
+		<button type="submit" class="auth-button">Войти</button>
+	  </form>
+	</div>
+	{% endblock %}
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Настройка области просмотра под ширину экрана -->
+    <title>Кладовка</title>
+	
+    <!-- Favicon links -->
+    <link rel="icon" href="{{ url_for('static', filename='icons/favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" sizes="16x16" href="{{ url_for('static', filename='icons/favicon-16x16.png') }}">
+    <link rel="icon" sizes="32x32" href="{{ url_for('static', filename='icons/favicon-32x32.png') }}">
+    <link rel="icon" sizes="192x192" href="{{ url_for('static', filename='icons/android-chrome-192x192.png') }}">
+    <link rel="icon" sizes="512x512" href="{{ url_for('static', filename='icons/android-chrome-512x512.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
+	
+	<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+	
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/index.css') }}">
+    <script>
+        let images = {{ images|tojson }}; // Make images variable modifiable
+
+        function updateImage() {
+            fetch('/api/last_image')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const imgElement = document.getElementById('lastImage');
+                    const infoElement = document.getElementById('imageInfo');
+                    const slider = document.getElementById('imageCount');
+
+                    if (data.images_count) {
+                        slider.max = data.images_count - 1;
+
+                        // If new images were added, move slider to the latest image
+                        if (parseInt(slider.value) < data.images_count - 1) {
+                            slider.value = data.images_count - 1;
+                            document.getElementById('imageCountValue').textContent = data.images_count - 1;
+                        }
+                    }
+
+                    if (data.last_image) {
+                        imgElement.src = `{{ url_for('static', filename='images/') }}${data.last_image}?t=${new Date().getTime()}`;
+						document.getElementById('infoDate').innerText = data.date;
+						document.getElementById('infoVoltage').innerText = data.voltage_sim;
+						
+						if (data.voltage_akb === 'N/A') {
+							document.getElementById('infoVoltageAKB').innerText = data.voltage_akb;
+						} else {
+							document.getElementById('infoVoltageAKB').innerText = `${data.voltage_akb} ± 0.2`;
+						}
+						
+						document.getElementById('infoSignal').innerText = `${data.signal_level}%`;
+						document.getElementById('infoTemp').innerText = `${data.temperature} °C`;
+						document.getElementById('infoHue').innerText = `${data.humidity}%`;
+                        
+                        // Update slider position to the last image
+                        const lastImageIndex = images.findIndex(image => image.image === data.last_image);
+                        if (lastImageIndex !== -1) {
+                            slider.value = lastImageIndex;
+                            document.getElementById('imageCountValue').textContent = lastImageIndex;
+                        }
+                    } else {
+                        imgElement.src = ''; // Если изображение отсутствует, очищаем src
+                        infoElement.innerHTML = ''; // Очищаем информацию
+                    }
+                })
+                .catch(error => console.error('Error fetching last image:', error));
+        }
+
+        function updateImageCount(index) {
+            document.getElementById('imageCountValue').textContent = index;
+            const imgElement = document.getElementById('lastImage');
+            const infoElement = document.getElementById('imageInfo');
+
+            // Update the image source and metadata based on the selected index
+            const selectedImage = images[index];
+            imgElement.src = `{{ url_for('static', filename='images/') }}${selectedImage.image}`;
+			document.getElementById('infoDate').innerText = selectedImage.date;
+			document.getElementById('infoVoltage').innerText = selectedImage.voltage_sim;
+			
+			if (selectedImage.voltage_akb === 'N/A') {
+				document.getElementById('infoVoltageAKB').innerText = selectedImage.voltage_akb;
+			} else {
+				document.getElementById('infoVoltageAKB').innerText = `${selectedImage.voltage_akb} ± 0.2`;
+			}
+			
+			document.getElementById('infoSignal').innerText = `${selectedImage.signal_level}%`;
+			document.getElementById('infoTemp').innerText = `${selectedImage.temperature} °C`;
+			document.getElementById('infoHue').innerText = `${selectedImage.humidity}%`;
+        }
+
+		// Function to fetch and display the chart image
+		function fetchChartImage() {
+			const loadingSpinner = document.getElementById('loadingSpinner');
+			const chartContainer = document.getElementById('chartContainer');
+			const noDataMessage = document.getElementById('noDataMessage'); 
+			const timeframe = document.getElementById('timeframe').value;
+			const chartType = document.getElementById('chartType').value;
+
+			loadingSpinner.style.display = 'block';
+			chartContainer.style.display = 'none';
+			noDataMessage.style.display = 'none'; // Скрываем сообщение
+
+			fetch(`/api/plot/${timeframe}/${chartType}`)
+				.then(response => response.json())
+				.then(data => {
+					if (data.image) {
+						const chartElement = document.getElementById('chartImage');
+						chartElement.src = data.image;
+						chartContainer.style.display = 'block';
+					} else if (data.error === "No data available") {
+						noDataMessage.style.display = 'block'; // Показываем сообщение
+					} else {
+						console.error('Error fetching chart image:', data.error);
+					}
+				})
+				.catch(error => console.error('Error fetching chart image:', error))
+				.finally(() => {
+					loadingSpinner.style.display = 'none';
+				});
+		}
+
+
+    // Функция для загрузки и отображения SMS
+    async function loadSms() {
+        try {
+            const response = await fetch('/sms-last');
+            if (!response.ok) throw new Error('Network error');
+            
+            const data = await response.json();
+            const smsList = document.querySelector('.sms-list');
+            const smsCount = document.querySelector('.sms-count');
+            
+            // Очищаем текущий список
+            smsList.innerHTML = '';
+            
+            if (data.sms && data.sms.length > 0) {
+                // Обновляем счетчик
+                smsCount.textContent = `(${data.sms.length})`;
+                
+                // Добавляем новые сообщения
+                data.sms.forEach(sms => {
+					const smsItem = document.createElement('div');
+					smsItem.className = 'sms-item';
+					
+					smsItem.innerHTML = `
+						<div class="sms-phone">${sms.phone}</div>
+						<div class="sms-timestamp">${sms.timestamp}</div>
+						<div class="sms-message">${sms.message}</div>
+					`;
+					
+					smsList.appendChild(smsItem);
+                });
+                
+                // Показываем список
+                smsList.style.display = 'block';
+            } else {
+                smsCount.textContent = '(0)';
+                smsList.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Error loading SMS:', error);
+        }
+    }
+
+    // Функция для инициализации SMS блока
+    function initSmsBlock() {
+        const smsContainer = document.querySelector('.sms-container');
+        const smsHeader = document.querySelector('.sms-header');
+        const smsToggle = document.querySelector('.sms-toggle');
+        
+        if (smsContainer) {
+            // Загружаем SMS при инициализации
+            loadSms();
+            
+            // Обновляем каждые 30 секунд
+            setInterval(loadSms, 30000);
+            
+            // Добавляем обработчик клика для переключения
+            smsHeader.addEventListener('click', function() {
+                const smsList = document.querySelector('.sms-list');
+                if (smsList.style.display === 'none' || smsList.style.display === '') {
+                    smsList.style.display = 'block';
+                    smsToggle.textContent = '▲';
+                } else {
+                    smsList.style.display = 'none';
+                    smsToggle.textContent = '▼';
+                }
+            });
+            
+            // Показываем контейнер
+            smsContainer.style.display = 'block';
+        }
+    }
+
+
+		// DOMContentLoaded event to set up initial event listeners
+		document.addEventListener('DOMContentLoaded', function() {
+
+			// Add event listener to the dropdown to update the chart on change
+			document.getElementById('timeframe').addEventListener('change', fetchChartImage);
+			document.getElementById('chartType').addEventListener('change', fetchChartImage);
+
+			// Инициализация блока SMS
+			initSmsBlock();
+
+			// Optionally, you can call fetchChartImage on page load to display the initial chart
+			fetchChartImage();
+		});
+
+        // Initialize the last image and metadata on page load
+        window.onload = function() {
+            const maxIndex = images.length - 1;
+            document.getElementById('imageCount').value = maxIndex;
+            updateImageCount(maxIndex);
+            
+            updateImage();
+            setInterval(updateImage, 30000); // Update last image every 30 seconds
+			
+			<!-- fetchChartImage(); -->
+            setInterval(fetchChartImage, 30000); // Update last chart every 30 seconds
+			
+            // Add double-click event listener to the image
+            const imgElement = document.getElementById('lastImage');
+            imgElement.addEventListener('click', function() {
+                openFullScreen(imgElement.src);
+            });
+			
+			// Add double-click event listener to the chart image
+			const chartElement = document.getElementById('chartImage');
+			chartElement.addEventListener('click', function() {
+				openFullScreen(chartElement.src);
+			});
+			
+        };
+
+		function openFullScreen(imageSrc) {
+			const fullScreenDiv = document.createElement('div');
+			fullScreenDiv.className = 'full-screen';
+
+			// Add a click event listener to the fullScreenDiv to close it when clicked
+			fullScreenDiv.addEventListener('click', closeFullScreen);
+
+			fullScreenDiv.innerHTML = `<img src="${imageSrc}" class="full-screen-image">`;
+			document.body.appendChild(fullScreenDiv);
+		}
+
+		function closeFullScreen() {
+			const fullScreenDiv = document.querySelector('.full-screen');
+			if (fullScreenDiv) {
+				document.body.removeChild(fullScreenDiv);
+			}
+		}
+    </script>
+</head>
+
+<body>
+    <div class="container">
+	
+        <!-- Добавляем кнопку меню в верхний правый угол -->
+        <div class="menu-button-container">
+            <button class="menu-button" onclick="window.open('/settings', '_blank')">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12h18M3 6h18M3 18h18"/>
+                </svg>
+            </button>
+        </div>
+	
+        <h1>Кладовка</h1>
+        
+        <div class="slider-container">
+            <label for="imageCount">Кадр:</label>
+            <input type="range" id="imageCount" min="0" max="{{ images|length - 1 }}" value="{{ images|length - 1 }}" oninput="updateImageCount(this.value)"  autofocus="autofocus">
+            <span id="imageCountValue">{{ images|length - 1 }}</span>
+        </div>
+        
+		<div id="imageInfo" class="image-info">
+			<table>
+				<tbody>
+					<tr>
+						<td class="fixed-width">Дата:</td>
+						<td id="infoDate" class="value-cell"></td>
+						
+						<td class="fixed-width">Сигнал GSM:</td>
+						<td id="infoSignal" class="value-cell"></td>
+					</tr>
+					
+					<tr>
+						<td class="fixed-width">Влажность:</td>
+						<td id="infoHue" class="value-cell"></td>
+						
+						<td class="fixed-width">Вольтаж GSM:</td>
+						<td id="infoVoltage" class="value-cell"></td>
+					</tr>
+					
+					<tr>
+						<td class="fixed-width">Температура:</td>
+						<td id="infoTemp" class="value-cell"></td>
+						
+						<td class="fixed-width">Вольтаж АКБ:</td>
+						<td id="infoVoltageAKB" class="value-cell"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+        <img id="lastImage" class="last-image" src="{{ url_for('static', filename='images/' + (last_image if last_image else '')) }}" alt="Last Image">
+
+        <br>
+
+
+	<div class="timeContainer">
+		<label for="chartType">График:</label>
+		<select id="chartType" class="styled-select">
+			<option value="temp_hue">Температура и Влажность</option>
+			<option value="volt_sig">Вольтаж и Сигнал</option>
+		</select>
+		
+		<label for="timeframe" class="margin-left">Период:</label>
+		<select id="timeframe" class="styled-select">
+			<option value="last_day">Сутки</option>
+			<option value="last_week" selected>Неделя</option>
+			<option value="last_month">Месяц</option>
+			<option value="last_year">Год</option>
+			<option value="all">Весь период</option>
+		</select>
+	</div>
+
+
+        <div id="chartContainer" style="display: none;">
+            <img id="chartImage" class="chart-image" style="width: 100%; height: auto;">
+        </div>
+		<div id="noDataMessage" class="no-data-message" style="display: none;">
+			Нет данных для отображения
+		</div>
+        <div id="loadingSpinner" class="loading-spinner" style="display: none;"></div>
+
+
+	<!-- Блок для отображения СМС - размещаем в подходящем месте, например после основного контента -->
+	<div class="sms-container">
+	<div class="sms-header">
+		<h3>Последние SMS <span class="sms-count">(0)</span></h3>
+		<span class="sms-toggle">▼</span>
+	</div>
+	<div class="sms-list">
+		<!-- Содержимое будет добавлено через JS -->
+	</div>
+	</div>
+
+    </div>
+
+</body>
+
+</html>

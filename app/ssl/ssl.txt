@@ -1,0 +1,24 @@
+sudo apt update
+sudo apt install certbot
+
+sudo certbot certonly --manual -d XXX.ru -d www.XXX.ru
+
+....
+
+# Временный путь для проверки Certbot
+from flask import send_from_directory
+ACME_DIR = "tmp/acme-challenge"
+os.makedirs(ACME_DIR, exist_ok=True)
+@app.route('/.well-known/acme-challenge/<filename>')
+def acme_challenge(filename):
+    file_path = os.path.join(ACME_DIR, filename)
+    if not os.path.exists(file_path):
+        abort(404)
+    return send_from_directory(ACME_DIR, filename)
+
+
+
+....
+
+sudo cp /etc/letsencrypt/live/vainu.ru/fullchain.pem /mnt/c/Users/Downloads/
+sudo cp /etc/letsencrypt/live/vainu.ru/privkey.pem /mnt/c/Users/Downloads/

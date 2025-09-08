@@ -157,7 +157,7 @@
                 });
                 
                 // Показываем список
-                smsList.style.display = 'block';
+                //smsList.style.display = 'block';
             } else {
                 smsCount.textContent = '(0)';
                 smsList.style.display = 'none';
@@ -173,6 +173,10 @@
         const smsHeader = document.querySelector('.sms-header');
         const smsToggle = document.querySelector('.sms-toggle');
         
+		// 
+		document.querySelector('.sms-list').style.display = 'none';
+		smsToggle.textContent = '▼';
+
         if (smsContainer) {
             // Загружаем SMS при инициализации
             loadSms();
@@ -194,6 +198,8 @@
             
             // Показываем контейнер
             smsContainer.style.display = 'block';
+			
+			
         }
     }
 
@@ -346,7 +352,7 @@
 		<h3>Последние SMS <span class="sms-count">(0)</span></h3>
 		<span class="sms-toggle">▼</span>
 	</div>
-	<div class="sms-list">
+	<div class="sms-list" style="display: none">
 		<!-- Содержимое будет добавлено через JS -->
 	</div>
 	</div>
